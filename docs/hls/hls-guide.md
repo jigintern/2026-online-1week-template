@@ -2,25 +2,39 @@
 
 ## 目次
 
-1. [HLSとは](#hlsとは)
-2. [HLSの特徴](#hlsの特徴)
-3. [HLSの構成要素](#hlsの構成要素)
-4. [HLSでの視聴の流れ](#hlsでの視聴の流れ)
-5. [実装例](#実装例)
-6. [デモページで確認してみよう](#デモページで確認してみよう)
-7. [まとめ](#まとめ)
+1. [ストリーミング配信とは](#ストリーミング配信とは)
+2. [HLSとは](#hlsとは)
+3. [HLSの特徴](#hlsの特徴)
+4. [HLSの構成要素](#hlsの構成要素)
+5. [HLSでの視聴の流れ](#hlsでの視聴の流れ)
+6. [実装例](#実装例)
+7. [デモページで確認してみよう](#デモページで確認してみよう)
+8. [HLS 用のファイルを作ってみよう](#hls-用のファイルを作ってみよう)
+9. [他の配信方式](#他の配信方式)
+10. [まとめ](#まとめ)
 
 ---
 
+## ストリーミング配信とは
+
+動画ファイルの形式として、mp4 をよく聞くと思います。mp4 は、すでに完成された動画を見るときには便利です。  
+一方で、ライブ配信のように動画がリアルタイムで増えていく場面では、完成済みの 1 ファイルをそのまま配る方法ではうまく対応できません。
+
+そこで使われるのが、ストリーミング再生という手法です。  
+動画を数秒ごとの短い動画ファイルに分割して配信し、再生側ではそれらを順番につなげながら連続再生します。こうした短い動画ファイルは、セグメントと呼ばれます。
+
+セグメントは必要になったタイミングで読み込まれるため、ライブ配信中に新しく増えた映像も、その都度取得しながら再生を続けられます。  
+これによって、配信中の動画をリアルタイムに近い形で視聴できます。
+
+![ストリーミング配信とは](img/ストリーミング配信とは.png)
+
+今回は、ストリーミング配信の1つである「HLS」に関して説明します！
+
+
 ## HLSとは
 
-**HLS（HTTP Live Streaming）** は、Apple が開発した動画ストリーミング配信方式です。  
+[HLS（HTTP Live Streaming）](https://developer.apple.com/streaming/) は、Apple が開発した動画ストリーミング配信方式です。  
 ライブ映像を**短い動画**に区切って、順番に取得しながら再生します。
-
-代表的な他方式:
-
-- **MPEG-DASH**: HLSに近いHTTPベース配信
-- **WebRTC**: 超低遅延が得意なリアルタイム通信
 
 ## HLSの特徴
 
@@ -54,6 +68,8 @@
 
 ## HLSの構成要素
 
+![HLSの構成](img/HLSの構成.png)
+
 ### 1. プレイリスト（M3U8）
 
 ABRでは、プレイリストは次の2種類を使います。
@@ -63,7 +79,7 @@ ABRでは、プレイリストは次の2種類を使います。
 
 マルチバリアントプレイリスト例:
 
-```m3u8:master.m3u8
+```m3u8:index.m3u8
 #EXTM3U
 #EXT-X-STREAM-INF:BANDWIDTH=4500000,RESOLUTION=1920x1080
 high/index.m3u8
@@ -379,6 +395,47 @@ TBD。インターン用の配信サーバが出来たらそれを載せる
 
 ---
 
+## HLS 用のファイルを作ってみよう
+
+[FFmpeg](https://www.ffmpeg.org/) と呼ばれる動画エンコード用のコマンドラインツールを使って、mp4 から HLS の出力（`.m3u8` と `.ts`）を作るデモを行います
+
+### 準備
+
+- `ffmpeg` が使えること
+- 下記サイトから `BigBuckBunny_320x180.mp4` の動画をダウンロードしておくこと  
+  https://peach.blender.org/download/
+
+
+### 変換
+
+入力にダウンロードしてきた動画ファイル、出力先に .m3u8 を指定することで HLS 用のファイルを作成してくれます。
+
+```bash
+ffmpeg -i BigBuckBunny_320x180.mp4 index.m3u8
+```
+
+### 生成物の確認
+
+変換すると m3u8 と ts ファイルが作成されます
+
+- `index.m3u8`: メディアプレイリスト
+- `stream{数字}.ts`: セグメントファイル（名前は自動で連番になります）
+
+環境にもよりますが、ts ファイル単体でも再生できて、分割された映像になっていることが分かると思います！
+
+---
+
+## 他の配信方式
+
+ライブ配信のための技術は、HLS の他にもたくさんあります。もし興味があれば仕組みを調べてみると面白いと思います！
+
+- **MPEG-DASH**: HLS と同じく HTTP ベースの方式。国際規格として策定されている
+- **WebRTC**: P2P（ピア・ツー・ピア）接続を使った超低遅延配信ができる方式。配信と同時に通話・コメント連携などが必要な場面で有効
+- **RTMP**: 配信取り込み（OBS などの配信ソフトから配信基盤への入力）で広く使われる方式。視聴するときには HLS などへ変換して使うことが多い
+- **SRT**: 不安定なネットワークでも映像を安定転送しやすい方式。リモート会場からの映像中継などで使われる
+
+---
+
 ## まとめ
 
 | 項目 | 内容 |
@@ -391,8 +448,12 @@ TBD。インターン用の配信サーバが出来たらそれを載せる
 
 ---
 
-## 参考リソース
+## 参考文献
 
-- [Apple - HTTP Live Streaming](https://developer.apple.com/documentation/http_live_streaming)
+- [Apple Streaming (HTTP Live Streaming)](https://developer.apple.com/streaming/)
 - [HLS.js - GitHub](https://github.com/video-dev/hls.js)
-- [FFmpeg HLS Documentation](https://ffmpeg.org/ffmpeg-formats.html#hls-2)
+- [HLS.js Demo](https://hlsjs.video-dev.org/demo/)
+- [FFmpeg](https://www.ffmpeg.org/)
+- [Big Buck Bunny Downloads (Blender)](https://peach.blender.org/download/)
+- [HLS.js CDN (jsDelivr)](https://cdn.jsdelivr.net/npm/hls.js@latest)
+- [Mux Test Stream](https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8)
