@@ -5,7 +5,7 @@
 ## 起動方法
 
 ```sh
-cd server
+cd docs/sse/server
 deno run --allow-net --allow-read main.js
 ```
 
@@ -51,11 +51,11 @@ sequenceDiagram
 - `/events` への接続ごとに `ReadableStream` を作り、その `controller` を `clients`（`Set`）に登録します。レスポンスを終わらせないことで SSE の「つなぎっぱなし」を実現しています
 - `POST /send` が来ると `broadcast()` が全 `controller` に `data: <本文>\n\n` を `enqueue` します。改行入りの本文は行ごとに `data:` を付けて SSE フォーマットを守ります
 - クライアントが切断すると `cancel()` が呼ばれて `Set` から外れます（`enqueue` に失敗した接続もその場で除去）
-- **CORS**: ハンズオン受講者は `handson/starter.html` を `file://` で直接開いて接続してくるため、全レスポンスに `Access-Control-Allow-Origin: *` を付けています。これを外すと受講者のブラウザが接続をブロックするので注意
+- **CORS**: ハンズオン受講者は `docs/sse/handson/starter.html` を `file://` で直接開いて接続してくるため、全レスポンスに `Access-Control-Allow-Origin: *` を付けています。これを外すと受講者のブラウザが接続をブロックするので注意
 
 ## デプロイ（当日用）
 
-Deno Deploy に `server/main.js` をエントリポイントとして置くだけで動きます。デプロイしたら:
+Deno Deploy に `docs/sse/server/main.js` をエントリポイントとして置くだけで動きます。デプロイしたら:
 
 1. ブラウザで `https://<デプロイ先>/events` を開き、`data: 接続しました！` が出ることを確認
 2. `https://<デプロイ先>/` のチャットで送受信できることを確認

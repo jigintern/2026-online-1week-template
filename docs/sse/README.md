@@ -417,7 +417,7 @@ data: こんにちは、SSE！
    git clone https://github.com/jigintern/2026-online-1week-template.git
    ```
 
-2. clone したフォルダの中の `handson/starter.html` を**テキストエディタ（VS Code など）で開きます**
+2. clone したフォルダの中の `docs/sse/handson/starter.html` を**テキストエディタ（VS Code など）で開きます**
 3. 同じファイルを**ブラウザでも開きます**（エクスプローラー / Finder でダブルクリックすれば開きます）
 
 ブラウザに「SSE チャット」というタイトルと入力欄が表示されれば準備完了です。ただし**この時点ではまだ何も送れないし届きません**（これから穴を埋めるので）。
@@ -497,7 +497,7 @@ await fetch(`${SERVER_URL}/send`, {
 
 保存してリロードし、入力欄にメッセージを書いて送信ボタンを押してみてください。**教室の全員の画面にあなたのメッセージが表示されたら完成です！** 🎉
 
-> 💡 詰まったら `handson/complete.html` に完成版があります。自分のコードと見比べてみてください。
+> 💡 詰まったら `docs/sse/handson/complete.html` に完成版があります。自分のコードと見比べてみてください。
 
 ### 完成チェック ✅
 
@@ -515,7 +515,7 @@ await fetch(`${SERVER_URL}/send`, {
 | それでも受信できない         | 開発者ツール（F12 / macOS は Option+Cmd+I）の **Console** タブに赤いエラーが出ていないか確認。スペルミス（`EventSource`、`onmessage`）が原因のことが多い |
 | 接続できているか見たい       | 開発者ツールの **Network** タブで `events` という行を探す。Type が `eventsource` になっていて、選択すると受信したメッセージ一覧が見られる                |
 | 送信できない                 | `fetch` の `method: "POST"` を忘れていないか？ Console にエラーが出ていないか？                                                                          |
-| それでも詰まったら           | `handson/complete.html` と自分のコードを見比べる                                                                                                         |
+| それでも詰まったら           | `docs/sse/handson/complete.html` と自分のコードを見比べる                                                                                                 |
 
 ### 追加チャレンジ 🚀（時間が余った人向け）
 
@@ -564,11 +564,11 @@ flowchart TB
 
 ### おまけ: サーバーごと手元で動かしてみる 🖥
 
-今日使ったサーバーのコードは、このリポジトリの [`server/`](../server/) に入っています。[Deno](https://deno.com/) をインストールすれば、自分の PC だけで一式動かせます:
+今日使ったサーバーのコードは、このリポジトリの [`server/`](server/) に入っています。[Deno](https://deno.com/) をインストールすれば、自分の PC だけで一式動かせます:
 
 ```sh
-cd server
+cd docs/sse/server
 deno run --allow-net --allow-read main.js
 ```
 
-起動したらブラウザで <http://localhost:8000> を開くと完成版のチャットが表示されます。`http://localhost:8000/events` で生のストリームを見ることもできます。起動方法やしくみの解説は [`server/README.md`](../server/README.md) にまとめてあるので、サーバー側がどうやって「終わらないレスポンス」を作っているのか、ぜひコードと合わせて読んでみてください。
+起動したらブラウザで <http://localhost:8000> を開くと完成版のチャットが表示されます。`http://localhost:8000/events` で生のストリームを見ることもできます。起動方法やしくみの解説は [`server/README.md`](server/README.md) にまとめてあるので、サーバー側がどうやって「終わらないレスポンス」を作っているのか、ぜひコードと合わせて読んでみてください。
