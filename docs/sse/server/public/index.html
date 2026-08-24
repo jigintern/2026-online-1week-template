@@ -47,15 +47,14 @@
   </form>
 
   <script>
-    // ⚠️ 講師が案内するサーバーの URL に書き換えてください（最後に / は付けない）
-    const SERVER_URL = "https://sse-chat.deno.dev";
-    
+    // このページはサーバー自身が配信するので、接続先は相対パスで書ける。
+    // file:// で直接開く場合は handson/complete.html（SERVER_URL 指定版）を使うこと。
     const messages = document.getElementById("messages");
     const form = document.getElementById("form");
     const input = document.getElementById("input");
 
     // サーバーからのメッセージを受け取る（SSE）
-    const eventSource = new EventSource(`${SERVER_URL}/events`);
+    const eventSource = new EventSource("/events");
     eventSource.onmessage = (event) => {
       console.log(event.data);
       addMessage(event.data);
