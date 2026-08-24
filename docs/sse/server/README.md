@@ -51,6 +51,7 @@ sequenceDiagram
 - `/events` への接続ごとに `ReadableStream` を作り、その `controller` を `clients`（`Set`）に登録します。レスポンスを終わらせないことで SSE の「つなぎっぱなし」を実現しています
 - `POST /send` が来ると `broadcast()` が全 `controller` に `data: <本文>\n\n` を `enqueue` します。改行入りの本文は行ごとに `data:` を付けて SSE フォーマットを守ります
 - クライアントが切断すると `cancel()` が呼ばれて `Set` から外れます（`enqueue` に失敗した接続もその場で除去）
+- **BroadcastChannel**: Deno Deploy はアクセス状況に応じてサーバーを複数のインスタンスに複製することがあり、`clients` はインスタンスごとに別物になります。そのままだと別インスタンスに接続した受講者にメッセージが届かないため、`POST /send` を受けたインスタンスが [BroadcastChannel](https://docs.deno.com/deploy/api/runtime-broadcast-channel/) で他の全インスタンスにも中継し、各インスタンスが自分の `clients` に配信します。ローカル実行ではインスタンスが1つなので、あってもなくても挙動は変わりません
 - **CORS**: ハンズオン受講者は `docs/sse/handson/starter.html` を `file://` で直接開いて接続してくるため、全レスポンスに `Access-Control-Allow-Origin: *` を付けています。これを外すと受講者のブラウザが接続をブロックするので注意
 
 ## デプロイ（当日用）

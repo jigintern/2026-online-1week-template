@@ -16,6 +16,13 @@
 const clients = new Set();
 const encoder = new TextEncoder();
 
+// Deno Deploy はアクセス状況に応じてこのサーバーを複数のインスタンスに複製する。
+// clients はインスタンスごとに別々のメモリ上にあるため、そのままだと
+// 別インスタンスに接続した相手へメッセージが届かない。
+// BroadcastChannel で全インスタンスにメッセージを中継してこれを防ぐ。
+// （ローカル実行ではインスタンスが1つなので、単に何も中継しないだけ）
+const channel = new BroadcastChannel("chat");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -36,6 +43,9 @@ function broadcast(message) {
     }
   }
 }
+
+// 他のインスタンスが中継してきたメッセージも、自分の clients に配信する
+channel.onmessage = (event) => broadcast(event.data);
 
 Deno.serve((req) => {
   const { pathname } = new URL(req.url);
@@ -72,7 +82,10 @@ Deno.serve((req) => {
   // メッセージ送信: 受け取った本文を全員に配信する
   if (pathname === "/send" && req.method === "POST") {
     return req.text().then((message) => {
-      if (message.trim()) broadcast(message);
+      if (message.trim()) {
+        broadcast(message); // 自分のインスタンスに接続中のクライアントへ
+        channel.postMessage(message); // 他のインスタンスへ中継
+      }
       return new Response("ok", { headers: corsHeaders });
     });
   }
